@@ -2,20 +2,12 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-	static class Node implements Comparable<Node> {
+	static class Node {
 		int v, cost;
 
 		public Node(int v, int cost) {
 			this.v = v;
 			this.cost = cost;
-		}
-
-		@Override
-		public int compareTo(Node edge) {
-			if (this.cost > edge.cost) {
-				return 1;
-			}
-			return -1;
 		}
 	}
 
@@ -51,7 +43,12 @@ public class Main {
 	}
 
 	static void dijkstra(int start, int end) {
-		PriorityQueue<Node> pq = new PriorityQueue<>();
+		PriorityQueue<Node> pq = new PriorityQueue<>(new Comparator<Node>() {
+			@Override
+			public int compare(Node o1, Node o2) {
+				return o1.cost - o2.cost;
+			}
+		});
 		pq.add(new Node(start, 0));
 		dist[start] = 0;
 
@@ -59,12 +56,10 @@ public class Main {
 			Node now = pq.poll(); // class 필드 호출은 상당히 느림
 			int nowV = now.v;
 			int nowC = now.cost;
-//			if(!visited[now.v]) visited[now.v]= true;
 			if (visited[nowV] && nowV == end)
 				return;
 			else if (visited[nowV])
 				continue;
-//			if(dist[end]<now.cost) continue;
 			visited[nowV] = true;
 
 			for (Node next : adj[nowV]) {
