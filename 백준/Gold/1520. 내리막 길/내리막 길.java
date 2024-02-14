@@ -1,72 +1,49 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-	static int M, N;
-	static int[][] arr, dp;
-	static int[] rangeX = { -1, 0, 1, 0 };
-	static int[] rangeY = { 0, 1, 0, -1 };
+	static int[][] arr,dp;
+	static int[] dy = { 0, 0, -1, 1 };
+	static int[] dx = { -1, 1, 0, 0 };
+	static boolean[][] v;
+	static int ans, N, M;
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-
-		M = Integer.parseInt(st.nextToken());
 		N = Integer.parseInt(st.nextToken());
-
-		arr = new int[M + 1][N + 1];
-		for (int i = 1; i <= M; i++) {
-			st = new StringTokenizer(br.readLine());
-
-			for (int j = 1; j <= N; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-
-		dp = new int[M + 1][N + 1]; // (x, y)에서 도착점으로 가는 경로의 개수
-		for (int i = 1; i <= M; i++) {
-			for (int j = 1; j <= N; j++) {
+		M = Integer.parseInt(st.nextToken());
+		arr = new int[N + 1][M + 1];
+		dp = new int[N + 1][M + 1];
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= M; j++)
 				dp[i][j] = -1;
-			}
-		}
+		v = new boolean[N][M];
 
-		bw.write(DFS(1, 1) + "\n");
-		bw.flush();
-		bw.close();
-		br.close();
+		for (int i = 1; i <= N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 1; j <= M; j++)
+				arr[i][j] = Integer.parseInt(st.nextToken());
+		}
+		System.out.println(dfs(1, 1));
 	}
 
-	public static int DFS(int x, int y) {
-		if (x == M && y == N) {
-			return 1;
-		}
+	static int dfs(int y, int x) {
+		if (y == N && x == M)
+			return 1; // 도착 1반환
+		if (dp[y][x] != -1)
+			return dp[y][x]; // 경로 계산 완료일 경우 해당값 반환
 
-		if (dp[x][y] != -1) {
-			return dp[x][y];
-		}
-
-		dp[x][y] = 0; // 현재 위치에서 끝점까지 도달하는 경로의 개수를 0으로 초기화.
+		// 끝도 아니고 방문해본적이 없는 칸이므로 계산
+		dp[y][x]=0;
 		for (int i = 0; i < 4; i++) {
-			int dx = x + rangeX[i];
-			int dy = y + rangeY[i];
+			int ny = y + dy[i];
+			int nx = x + dx[i];
 
-			if (dx < 1 || dy < 1 || dx > M || dy > N) {
-				continue;
-			}
-			
-			// arr[x][y]보다 arr[dx][dy]가 높이가 더 낮다면
-			// arr[dx][dy]에서 끝점까지 도달하는 경로의 개수를 더한다.
-			if (arr[x][y] > arr[dx][dy]) {
-				dp[x][y] += DFS(dx, dy);
+			if (0< ny && ny <= N && 0 < nx && nx <= M && arr[y][x] > arr[ny][nx]) {
+				dp[y][x] += dfs(ny, nx);
 			}
 		}
-
-		return dp[x][y];
+		return dp[y][x];
 	}
-
 }
