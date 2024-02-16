@@ -3,44 +3,63 @@ import java.util.*;
 
 public class Main {
 
-	public static void main(String[] args) throws Exception{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		int N = Integer.parseInt(st.nextToken());
-		int M = Integer.parseInt(st.nextToken());
-		int[][] arr = new int[N][M];
-		
-		int[] dy = {0,0,-1,1};
-		int[] dx = {-1,1,0,0};
-		
-		for(int i=0;i<N;i++) { // 입력
-			String input = br.readLine();
-			for(int j=0;j<M;j++) arr[i][j] = input.charAt(j) - '0';
+	static StringTokenizer st;
+	static BufferedReader br;
+
+	static int N, M;
+	static boolean map[][];
+	static Queue<int[]> q;
+
+	static final int dx[] = { 1, -1, 0, 0 };
+	static final int dy[] = { 0, 0, 1, -1 };
+
+	public static void main(String[] args) throws Exception {
+		br = new BufferedReader(new InputStreamReader(System.in));
+		st = new StringTokenizer(br.readLine());
+
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+
+		map = new boolean[N][M];
+
+		for (int n = 0; n < N; n++) {
+			String line = br.readLine();
+			for (int m = 0; m < M; m++) {
+				map[n][m] = (line.charAt(m) - '0' == 1) ? true : false;
+			}
 		}
-		
-		Queue<int[]> q = new ArrayDeque<>();
-		q.offer(new int[] {0,0});
-		arr[0][0] = 0;
-		
-		while(!q.isEmpty()) {
-			int[] now = q.poll();
-			int y = now[0];
-			int x = now[1];
+
+		bfs(0, 0, 1);
+		br.close();
+	}
+
+	private static void bfs(int n, int m, int cnt) {
+		q = new ArrayDeque<int[]>();
+		q.offer(new int[] { n, m, cnt });
+		map[n][m] = false;
+//		cnt = 1;
+
+		while (!q.isEmpty()) {
+			int ij[] = q.poll();
+			int i = ij[0];
+			int j = ij[1];
+			cnt = ij[2];
+
+			if(i==N-1&&j==M-1) {
+				System.out.println(cnt); 
+				return;
+			}
 			
-			for(int i=0;i<4;i++) {
-				int ny = y + dy[i];
-				int nx = x + dx[i];
-				
-				if(0<=ny&&ny<N&&0<=nx&&nx<M&&arr[ny][nx]==1) {
-					q.offer(new int[] {ny,nx});
-					arr[ny][nx]=arr[y][x]+1;
+			for (int d = 0; d < 4; d++) {
+				int nx = i + dx[d];
+				int ny = j + dy[d];
+
+//				System.out.println(ny+" "+nx+" ");
+				if (nx >= 0 && nx < N && ny >= 0 && ny < M && map[nx][ny]) {
+					map[nx][ny] = false;
+					q.offer(new int[] { nx, ny, cnt+1 });
 				}
 			}
 		}
-		
-		System.out.println(arr[N-1][M-1]+1);
-		
 	}
-
 }
