@@ -1,76 +1,110 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
+
+/***
+ * 
+ * 
+ * ✨ Algorithm ✨
+ * @Problem : BOJ 1197 최소 스패닝 트리
+ * @Author : Daun JO
+ * @Date : 2021. 8. 31. 
+ * @Algo : MST (크루스칼)
+ *
+ */
 public class Main {
-	static int v, e;
-	static int edgeCount, answer;
-	static int[] parent;
-	static PriorityQueue<Edge> pq = new PriorityQueue<>();
+	
+	static class Node implements Comparable<Node> {
+		int from;
+		int to;
+		int cost;
+		
+		
 
-	static class Edge implements Comparable<Edge> {
-		int a, b, weight;
-
-		Edge(int a, int b, int weight) {
-			this.a = a;
-			this.b = b;
-			this.weight = weight;
+		public Node(int from, int to, int cost) {
+			super();
+			this.from = from;
+			this.to = to;
+			this.cost = cost;
 		}
+
+
 
 		@Override
-		public int compareTo(Edge o) {
-			return this.weight - o.weight;
+		public int compareTo(Node o) {
+			return this.cost - o.cost;
 		}
+		
 	}
-
-	static void makeSet() {
-		parent = new int[v];
-		for (int i = 0; i < v; i++) {
-			parent[i] = i;
-		}
-	}
-
-	static int find(int i) {
-		if (i == parent[i]) return i;
-		return parent[i] = find(parent[i]);
-	}
-
-	static boolean union(int a, int b) {
-		a = find(a);
-		b = find(b);
-		if (a == b) return false; // 사이클이 발생하는 경우
-		if (a > b) parent[a] = b;
-		else parent[b] = a;
-		return true;
-	}
-
+	static int V, E;
+	static int[] parents;
+	static ArrayList<Node> nodeList;
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		v = Integer.parseInt(st.nextToken());
-		e = Integer.parseInt(st.nextToken());
-
-		for (int i = 0; i < e; i++) {
+		
+		V = Integer.parseInt(st.nextToken());
+		E = Integer.parseInt(st.nextToken());
+		
+		
+		parents = new int[V+1];
+		nodeList = new ArrayList<>();
+		
+		
+		for (int i = 0; i < E; i++) {
 			st = new StringTokenizer(br.readLine());
-			int a = Integer.parseInt(st.nextToken()) - 1;
-			int b = Integer.parseInt(st.nextToken()) - 1;
-			int weight = Integer.parseInt(st.nextToken());
-			pq.offer(new Edge(a, b, weight));
+			
+			int from = Integer.parseInt(st.nextToken());
+			int to = Integer.parseInt(st.nextToken());
+			int cost = Integer.parseInt(st.nextToken());
+			
+			//from번 정점과 to번 정점이 가중치 cost인 간선으로 연결되어 있다
+			nodeList.add(new Node(from,to, cost));
 		}
-
-		makeSet();
-
-		// Kruskal 알고리즘을 이용하여 MST의 가중치를 구한다.
-		for (int i = 0; i < e; i++) {
-			Edge edge = pq.poll();
-			if (union(edge.a, edge.b)) {
-				answer += edge.weight;
-				if (++edgeCount == v - 1)
-					break;
+		
+		Collections.sort(nodeList);
+		
+		make();
+		
+		int sum = 0;
+		int cnt = 0;
+		
+		for(Node n : nodeList) {
+			if(union(n.from, n.to)){
+				sum += n.cost;
+				cnt++;
+				
+				if(cnt==E-1) break;
 			}
 		}
-
-		System.out.println(answer);
+		
+		System.out.println(sum);
 	}
+	
+	private static boolean union(int from, int to) {
+		
+		int fromRoot = findSet(from);
+		int toRoot = findSet(to);
+		
+		if(fromRoot==toRoot) return false;
+		else parents[toRoot] = fromRoot;
+		return true;
+	}
+
+	private static int findSet(int v) {
+		
+		if(parents[v]==v) return v;
+		else return parents[v] = findSet(parents[v]);
+	}
+
+	private static void make() {
+		for(int i = 1 ; i <= V ; i++) {
+			parents[i] = i;
+		}
+	}
+	
+
 }
