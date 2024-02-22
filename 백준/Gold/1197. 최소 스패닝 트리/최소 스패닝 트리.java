@@ -1,110 +1,99 @@
+/**
+ * 1. 에지리스트로 구현하고 유니온 파인트 배열 초기화
+ * 2. 가중치 기준으로 오름차순 정렬
+ * 3. 가중치가 가장 낮은 에지부터 연결 시도 
+ */
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
-
-/***
- * 
- * 
- * ✨ Algorithm ✨
- * @Problem : BOJ 1197 최소 스패닝 트리
- * @Author : Daun JO
- * @Date : 2021. 8. 31. 
- * @Algo : MST (크루스칼)
- *
- */
 public class Main {
-	
-	static class Node implements Comparable<Node> {
-		int from;
-		int to;
-		int cost;
-		
-		
 
-		public Node(int from, int to, int cost) {
-			super();
-			this.from = from;
-			this.to = to;
-			this.cost = cost;
+	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	static StringTokenizer st;
+	static StringBuilder sb = new StringBuilder();
+	static int V, E, result, edge;
+	static int[] parent;
+	static boolean[] visited;
+	static Queue<Edge> q = new PriorityQueue<Edge>();
+
+//	에지리스트
+	static class Edge implements Comparable<Edge> {
+		int start;
+		int end;
+		int value;
+
+		public Edge(int start, int end, int value) {
+			this.start = start;
+			this.end = end;
+			this.value = value;
 		}
 
+//		가중치 오름차순 
+		public int compareTo(Edge o) {
 
-
-		@Override
-		public int compareTo(Node o) {
-			return this.cost - o.cost;
+			return this.value - o.value;
 		}
-		
+
 	}
-	static int V, E;
-	static int[] parents;
-	static ArrayList<Node> nodeList;
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		
+
+	public static void main(String[] args) throws IOException {
+		st = new StringTokenizer(br.readLine());
 		V = Integer.parseInt(st.nextToken());
 		E = Integer.parseInt(st.nextToken());
-		
-		
-		parents = new int[V+1];
-		nodeList = new ArrayList<>();
-		
-		
+		parent = new int[V + 1];
+
+//		1. 에지리스트로 구현하고 유니온 파인트 배열 초기화
+		for (int i = 0; i < V + 1; i++) {
+			parent[i] = i;
+		}
+
 		for (int i = 0; i < E; i++) {
 			st = new StringTokenizer(br.readLine());
-			
-			int from = Integer.parseInt(st.nextToken());
-			int to = Integer.parseInt(st.nextToken());
-			int cost = Integer.parseInt(st.nextToken());
-			
-			//from번 정점과 to번 정점이 가중치 cost인 간선으로 연결되어 있다
-			nodeList.add(new Node(from,to, cost));
+			int start = Integer.parseInt(st.nextToken());
+			int end = Integer.parseInt(st.nextToken());
+			int value = Integer.parseInt(st.nextToken());
+
+			// 2. 가중치 기준으로 오름차순 정렬 => comparable 사용하고 우선순위 큐에 담으면 자동 정렬
+			q.add(new Edge(start, end, value));
 		}
-		
-		Collections.sort(nodeList);
-		
-		make();
-		
-		int sum = 0;
-		int cnt = 0;
-		
-		for(Node n : nodeList) {
-			if(union(n.from, n.to)){
-				sum += n.cost;
-				cnt++;
-				
-				if(cnt==E-1) break;
+
+//		MST를 만족하기 위해서는 에지 수가 최대 V - 1개
+		while (edge < V - 1) {
+			Edge cur = q.poll();
+
+//		    3. 가중치가 가장 낮은 에지부터 연결 시도 => 대표노드가 서로 다를 경우! , 만약 같다면 사이클이 형성됨 
+			if (find(cur.start) != find(cur.end)) {
+				union(cur.start, cur.end);
+				result += cur.value;
+				edge++;
 			}
 		}
-		
-		System.out.println(sum);
-	}
-	
-	private static boolean union(int from, int to) {
-		
-		int fromRoot = findSet(from);
-		int toRoot = findSet(to);
-		
-		if(fromRoot==toRoot) return false;
-		else parents[toRoot] = fromRoot;
-		return true;
+
+		sb.append(result);
+		System.out.println(sb);
+
 	}
 
-	private static int findSet(int v) {
-		
-		if(parents[v]==v) return v;
-		else return parents[v] = findSet(parents[v]);
-	}
+//	union 연산 
+	static void union(int x, int y) {
+		x = find(x);
+		y = find(y);
 
-	private static void make() {
-		for(int i = 1 ; i <= V ; i++) {
-			parents[i] = i;
+		if (x != y) {
+			parent[y] = x;
 		}
 	}
-	
+
+//	find 연산 => 사이클 여부 확인
+	static int find(int x) {
+		if (x == parent[x])
+			return x;
+		return parent[x] = find(parent[x]);
+	}
 
 }
