@@ -1,66 +1,110 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
+
+/***
+ * 
+ * 
+ * ✨ Algorithm ✨
+ * @Problem : BOJ 1197 최소 스패닝 트리
+ * @Author : Daun JO
+ * @Date : 2021. 8. 31. 
+ * @Algo : MST (크루스칼)
+ *
+ */
 public class Main {
 	
-	static int[] parent;
-	
-	public static void main(String[] args) throws IOException {
-		// Kruscal
+	static class Node implements Comparable<Node> {
+		int from;
+		int to;
+		int cost;
+		
+		
+
+		public Node(int from, int to, int cost) {
+			super();
+			this.from = from;
+			this.to = to;
+			this.cost = cost;
+		}
+
+
+
+		@Override
+		public int compareTo(Node o) {
+			return this.cost - o.cost;
+		}
+		
+	}
+	static int V, E;
+	static int[] parents;
+	static ArrayList<Node> nodeList;
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		int V = Integer.parseInt(st.nextToken());
-		int E = Integer.parseInt(st.nextToken());
 		
-		parent = new int[V+1];
-		for (int i =0; i<=V; i++) {
-			parent[i] = i;
-		}
-		PriorityQueue<int[]> pq = new PriorityQueue<>(
-				(o1,o2) -> o1[2] - o2[2]);
+		V = Integer.parseInt(st.nextToken());
+		E = Integer.parseInt(st.nextToken());
 		
-		for (int i =0; i<E ; i++) {
+		
+		parents = new int[V+1];
+		nodeList = new ArrayList<>();
+		
+		
+		for (int i = 0; i < E; i++) {
 			st = new StringTokenizer(br.readLine());
-			int from = Integer.parseInt(st.nextToken());
-			int in = Integer.parseInt(st.nextToken());
-			int weight = Integer.parseInt(st.nextToken());
 			
-			pq.add(new int[] {from,in,weight});
+			int from = Integer.parseInt(st.nextToken());
+			int to = Integer.parseInt(st.nextToken());
+			int cost = Integer.parseInt(st.nextToken());
+			
+			//from번 정점과 to번 정점이 가중치 cost인 간선으로 연결되어 있다
+			nodeList.add(new Node(from,to, cost));
 		}
 		
-		// 최소 스패닝 트리 작성
-		int count = 0; 
-		long cost = 0;
-		while (count != V-1) {
-			int[] cur = pq.poll();
-			
-			if (union(cur[0],cur[1])) {
-				count++;
-				cost = (long)(cost + (long)cur[2]);
+		Collections.sort(nodeList);
+		
+		make();
+		
+		int sum = 0;
+		int cnt = 0;
+		
+		for(Node n : nodeList) {
+			if(union(n.from, n.to)){
+				sum += n.cost;
+				cnt++;
+				
+				if(cnt==E-1) break;
 			}
 		}
 		
-		System.out.println(cost);
-		
+		System.out.println(sum);
 	}
 	
-	public static boolean union(int a, int b) {
-		int aNode = find(a);
-		int bNode = find(b);
+	private static boolean union(int from, int to) {
 		
-		if (aNode==bNode) return false;
+		int fromRoot = findSet(from);
+		int toRoot = findSet(to);
 		
-		parent[bNode] = aNode;
+		if(fromRoot==toRoot) return false;
+		else parents[toRoot] = fromRoot;
 		return true;
-		
-	} 
-	
-	public static int find(int a) {
-		if (a == parent[a]) return a;
-		return parent[a] = find(parent[a]);
 	}
+
+	private static int findSet(int v) {
+		
+		if(parents[v]==v) return v;
+		else return parents[v] = findSet(parents[v]);
+	}
+
+	private static void make() {
+		for(int i = 1 ; i <= V ; i++) {
+			parents[i] = i;
+		}
+	}
+	
 
 }
