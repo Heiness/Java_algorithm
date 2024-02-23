@@ -1,115 +1,101 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 public class Main {
-	
-	static int[] order;
-	static boolean[] visited;
-	static int N;
-	static int[][] innings;
-	static int maxScore;
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		N = Integer.parseInt(br.readLine());
-		innings = new int[N+1][10];
-		
-		for (int i = 1; i <= N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 1; j <= 9; j++) {
-				innings[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-		
-		order = new int[10];
-		visited = new boolean[10];
-		order[4] = 1;
-		maxScore = Integer.MIN_VALUE;
-		dfs(1);
-		
-		System.out.println(maxScore);
-	}
+    static int N, result;
+    // 각 이닝당 선수들이 얻는 결과
+    static int[][] scores;
+    // 순열
+    static int[] permutation = new int[9];
+    static boolean[] visit = new boolean[9];
 
-	private static void dfs(int depth) {
-		if (depth == 4) {
-//			order[4] = 1;
-			dfs(depth+1);
-			return;
-		}
-		if (depth == 10) {
-			game();
-			return;
-		}
-		
-		for (int i = 2; i <= 9; i++) {
-			if (!visited[i]) {
-				visited[i] = true;
-				order[depth] = i;
-				dfs(depth+1);
-				visited[i] = false;
-			}
-		}
-	}
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        scores = new int[N][9];
+        for (int i = 0; i < N; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < 9; j++) {
+                scores[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+        // 4번선수[3]는 무조건 0번[1]타자
+        permutation[3] = 0;
+        visit[0] = true;
 
-	private static void game() {
-		int index = 0;
-		int base = 0;
-		int score = 0;
-		for (int i = 1; i <= N; i++) {
-			base = 0;
-			int outcount = 0;
-			while(outcount < 3) {
-				int playerNumber = order[(index % 9) + 1];
-				int heatNumber = innings[i][playerNumber];
-				switch (heatNumber) {
-				case 0:
-					outcount++;
-					break;
-				case 1:
-					base <<= 1;
-					base += 1;
-					if ((base & (1 << 3)) != 0) {
-						score++;
-					}
-					break;
-				case 2:
-					base <<= 1;
-					base += 1;
-					base <<= 1;
-					for (int j = 0; j < 2; j++) {
-						if ((base & (1 << 3 + j)) != 0) {
-							score++;
-						}
-					}
-					break;
-				case 3:
-					base <<= 1;
-					base += 1;
-					base <<= 2;
-					for (int j = 0; j < 3; j++) {
-						if ((base & (1 << 3 + j)) != 0) {
-							score++;
-						}
-					}
-					break;
-				case 4:
-					base <<= 1;
-					base += 1;
-					base <<= 3;
-					for (int j = 0; j < 4; j++) {
-						if ((base & (1 << 3 + j)) != 0) {
-							score++;
-						}
-					}
-					break;
-				}
-				
-				index++;
-			}
-		}
-		
-		maxScore = Math.max(maxScore, score);
-	}
+        // 순열을 얻는다.
+        getPermutation(0);
+
+        System.out.println(result);
+    }
+
+    private static void getPermutation(int depth) {
+        // 9명의 순열을 구했다면 게임 진행
+        if (depth == 9) {
+            playGame();
+            return;
+        }
+
+        for (int i = 0; i < 9; i++) {
+            if (visit[i]) continue;
+            visit[i] = true;
+            permutation[depth] = i;
+
+            // 4번째타자[3]는 구할 필요 없음
+            if(depth == 2){
+                getPermutation(depth + 2);
+            }else{
+                getPermutation(depth + 1);
+            }
+            visit[i] = false;
+        }
+    }
+
+    // 게임 진행
+    private static void playGame() {
+        int gameScore = 0; // 게임 스코어
+        int base1; // 현재 1루
+        int base2; // 현재 2루
+        int base3; // 현재 3루
+        int idx = 0; // 타자 순서
+
+        for (int i = 0; i < N; i++) {
+            int outCount = 0; // 아웃 카운트
+            base1 = base2 = base3 = 0; // 초기화
+
+            while (outCount != 3) {
+                // 현재 주자가 얻을 수 있는 결과
+                int getScore = scores[i][permutation[idx]];
+
+                // 아웃인 경우
+                if (getScore == 0) {
+                    outCount++;
+                }
+                // 안타인 경우 -> 각 주자 1루씩 진출
+                else if (getScore == 1) {
+                    gameScore += base3;
+                    base3 = base2;
+                    base2 = base1;
+                    base1 = 1;
+                } else if (getScore == 2) {
+                    gameScore += base3 + base2;
+                    base3 = base1;
+                    base1 = 0;
+                    base2 = 1;
+                } else if (getScore == 3) {
+                    gameScore += base1 + base2 + base3;
+                    base1 = base2 = 0;
+                    base3 = 1;
+                } else if (getScore == 4) {
+                    gameScore += base1 + base2 + base3 + 1;
+                    base1 = base2 = base3 = 0;
+                }
+                idx = (idx + 1) % 9;
+            }
+        }
+
+        if (result < gameScore) result = gameScore;
+    }
 }
