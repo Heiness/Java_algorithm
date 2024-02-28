@@ -19,8 +19,9 @@ public class Main {
 		for (int i = 0; i < N; i++)
 			arr[i] = br.readLine().toCharArray();
 
-		PriorityQueue<int[]> pq = new PriorityQueue<>(
-				(o1, o2) -> o1[3] == o2[3] ? Integer.compare(o1[2], o2[2]) : Integer.compare(o1[3], o2[3]));
+//		PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> o1[3] == o2[3] ? Integer.compare(o1[2], o2[2]) : Integer.compare(o1[3], o2[3]));
+		Queue<int[]> pq = new ArrayDeque<>();
+				
 		pq.offer(new int[] { 0, 0, 1, 0 });
 		visited[0][0][0] = true;
 
