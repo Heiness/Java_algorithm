@@ -28,24 +28,15 @@ public class Main {
 		}
 		
 		Queue<int[]> q = new ArrayDeque<>();
-//		PriorityQueue<int[]> q = new PriorityQueue<>((o1,o2)->Integer.compare(o1[2], o2[2]));
-		q.offer(new int[] { dY, dX, 0 }); // y축이동
-//		q.offer(new int[] { dY, dX, 1 ,0}); // x축이동
+		q.offer(new int[] { dY, dX, 0 }); 
 		arr[dY][dX] = 0;
 		while (!q.isEmpty()) {
 			int[] now = q.poll();
 			int y = now[0];
 			int x = now[1];
 			int d = now[2];
-//			int c = now[3];
-//			System.out.println(d);
-//			for(int[] t: arr) System.out.println(Arrays.toString(t));
-//			System.out.println();
 			
 			for(int i=0;i<4;i++) {
-//				if(d==0 && (i==2||i==3)) continue;
-//				if(d==1 && (i==0||i==1)) continue;
-				
 				int ny = y;
 				int nx = x;
 				
@@ -58,13 +49,11 @@ public class Main {
 					else if(arr[ny][nx]==-2) { // 거울
 						q.offer(new int[] {ny,nx,d+1});
 						arr[ny][nx] = 0;
-//						break;
 					}
 					else if(arr[ny][nx]==-3){ // 문
 						System.out.println(d);
 						return;
 					}
-					else arr[ny][nx]=0;
 				}
 			}
 
