@@ -6,7 +6,7 @@ public class Main {
 	static List<int[]>[] graph;
 	static PriorityQueue<int[]> pq = new PriorityQueue<>((o1,o2)->Integer.compare(o1[1], o2[1]));
 	static int[] dist;
-	static boolean[] visited;
+//	static boolean[] visited;
 	
 	public static void main(String[] args) throws Exception{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -17,7 +17,7 @@ public class Main {
 		M = Integer.parseInt(st.nextToken());
 		graph = new ArrayList[N+1];
 		dist = new int[N+1];
-		visited = new boolean[N+1];
+//		visited = new boolean[N+1];
 		for(int i=1;i<N+1;i++) {
 			graph[i] = new ArrayList<>();
 			dist[i] = Integer.MAX_VALUE;
@@ -45,13 +45,14 @@ public class Main {
 			int[] now = pq.poll();
 			int nowV = now[0];
 			int nowW = now[1];
-			if(visited[nowV]) continue;
-			visited[nowV] = true;
+			if(dist[nowV]<nowW) continue;
+//			if(visited[nowV]) continue;
+//			visited[nowV] = true;
 			for(int[] next:graph[nowV]) {
 				int nextV = next[0];
 				int nextW = next[1];
 				int d = nowW+nextW;
-				if(!visited[nextV]&&dist[nextV]>d) {
+				if(dist[nextV]>d) {
 					pq.offer(new int[] {nextV, d});
 					dist[nextV] = d;
 				}
