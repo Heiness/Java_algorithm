@@ -1,45 +1,37 @@
 import java.io.*;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Main {
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
-		int t = Integer.parseInt(br.readLine());
-		for(int test=0; test<t; test++) {
-			int input = Integer.parseInt(br.readLine());
 
-			TreeMap<Integer, Integer> map = new TreeMap<>();
-			for(int i=0; i<input; i++) {
-				StringTokenizer st = new StringTokenizer(br.readLine());
-				String op = st.nextToken();
-				
-				if(op.equals("I")) {
-					int num = Integer.parseInt(st.nextToken());
-					map.put(num, map.getOrDefault(num, 0)+1);
-				}else {
-					if(map.size()==0) continue;
-					int type = Integer.parseInt(st.nextToken());
-					int num;
-					if(type == 1) { //최댓값 삭제 
-						num = map.lastKey();
-					}else { // 최솟값 삭제
-						num = map.firstKey();
-					}
-					if(map.put(num, map.get(num)-1)==1) {
-						map.remove(num);
-					}
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		StringBuilder sb = new StringBuilder();
+		TreeMap<Integer, Integer> tm;
+		int T = Integer.parseInt(br.readLine());
+		for(int tc=1;tc<T+1;tc++) {
+			int N = Integer.parseInt(br.readLine());
+			tm = new TreeMap<>();
+			for(int i=0;i<N;i++) {
+				st = new StringTokenizer(br.readLine());
+				char c = st.nextToken().charAt(0);
+				int num = Integer.parseInt(st.nextToken());
+				if(c=='I') tm.put(num, tm.getOrDefault(num, 0)+1);
+				else{
+					int cnt = tm.size();
+					if(cnt==0) continue; // 비었으면 스킵
+					int tmp=0;
+					if(num==1) tmp = tm.lastKey();
+					else tmp = tm.firstKey();
+					if(tm.get(tmp)==1) tm.remove(tmp);
+					else tm.put(tmp, tm.get(tmp)-1);
 				}
 			}
-			
-              if (map.size()==0) {
-	            sb.append("EMPTY\n");
-	        } else {
-	        	sb.append(map.lastKey()+" " + map.firstKey()+"\n");
-	        }
-
+			if(tm.isEmpty()) sb.append("EMPTY").append("\n");
+			else sb.append(tm.lastKey()).append(" ").append(tm.firstKey()).append("\n");
 		}
-		System.out.println(sb.toString());
+		System.out.println(sb);
+		
 	}
+
 }
